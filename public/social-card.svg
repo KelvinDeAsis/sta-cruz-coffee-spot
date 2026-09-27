@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Sta. Cruz Coffee Spot</title>
+  <desc id="desc">Coffee and conversations on Dapitan Street in Sampaloc, Manila.</desc>
+  <defs>
+    <pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse">
+      <path d="M56 0H0V56" fill="none" stroke="#263b2d" stroke-opacity=".12"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="#e3e8d5"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <circle cx="1030" cy="105" r="190" fill="#fbf7ed"/>
+  <circle cx="920" cy="540" r="260" fill="#7d916d"/>
+  <g transform="translate(765 190)">
+    <path d="M20 120h250v120c0 95-55 145-125 145S20 335 20 240V120Z" fill="#fffdf7" stroke="#201c18" stroke-width="14"/>
+    <ellipse cx="145" cy="120" rx="125" ry="26" fill="#704933" stroke="#201c18" stroke-width="14"/>
+    <path d="M270 175h28c85 0 85 115 0 115h-35" fill="none" stroke="#201c18" stroke-width="14"/>
+    <path d="M96 82c-26-25 35-41 8-76M178 82c-26-25 35-41 8-76" fill="none" stroke="#fbf7ed" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <g fill="#201c18">
+    <text x="74" y="104" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="5">DAPITAN • SAMPALOC • MANILA</text>
+    <text x="70" y="270" font-family="Georgia, serif" font-size="116" font-weight="700" letter-spacing="-7">Coffee &amp;</text>
+    <text x="70" y="382" font-family="Georgia, serif" font-size="116" font-weight="700" letter-spacing="-7">Convos.</text>
+    <text x="75" y="472" font-family="Arial, sans-serif" font-size="34" font-weight="700">Sta. Cruz Coffee Spot</text>
+    <text x="75" y="523" font-family="Arial, sans-serif" font-size="25">2115 Dapitan St., Sampaloc, Manila</text>
+  </g>
+</svg>

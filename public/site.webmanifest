@@ -1,0 +1,17 @@
+{
+  "name": "Sta. Cruz Coffee Spot",
+  "short_name": "Sta. Cruz",
+  "description": "Coffee & Convos on Dapitan Street in Sampaloc, Manila.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf7ed",
+  "theme_color": "#4e6548",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

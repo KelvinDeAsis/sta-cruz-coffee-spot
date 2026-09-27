@@ -1,0 +1,230 @@
+---
+import { openingHours, siteInfo } from "../data/site";
+
+const year = new Date().getFullYear();
+---
+
+<footer id="visit" class="site-footer">
+  <div class="container footer-top">
+    <div class="footer-invite">
+      <p class="eyebrow">Visit Sta. Cruz</p>
+      <h2>See you on<br /><em>Dapitan.</em></h2>
+      <a
+        class="footer-directions"
+        href={siteInfo.mapUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        data-analytics="footer-directions"
+      >
+        Get directions <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+    <div class="footer-details">
+      <div>
+        <h3>Address</h3>
+        <address>{siteInfo.address}</address>
+        <a href={`tel:${siteInfo.phoneHref}`} data-analytics="footer-phone">
+          {siteInfo.phoneDisplay}
+        </a>
+        <a href={`mailto:${siteInfo.email}`} data-analytics="footer-email">{siteInfo.email}</a>
+      </div>
+      <div>
+        <h3>Hours</h3>
+        <ul>
+          {openingHours.map((hours) => (
+            <li>
+              <span>{hours.label}</span>
+              <strong>{hours.value}</strong>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <a class="footer-brand" href="/">Sta. Cruz Coffee Spot</a>
+    <p>© {year} Sta. Cruz Coffee Spot</p>
+    <div class="footer-links">
+      <a href="/privacy/" aria-current={Astro.url.pathname.startsWith("/privacy") ? "page" : undefined}>Privacy Notice</a>
+      {siteInfo.socialLinks.map((social) => (
+        <a
+          href={social.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-analytics={`footer-${social.label.toLowerCase()}`}
+        >
+          {social.label} <span class="sr-only">(opens in a new tab)</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding: clamp(80px, 12vw, 140px) 0 24px;
+    background: var(--espresso);
+    color: var(--warm-white);
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(60px, 10vw, 130px);
+    padding-bottom: 90px;
+  }
+
+  .footer-invite h2 {
+    margin: 0 0 42px;
+    font-family: var(--display);
+    font-size: clamp(3.2rem, 8vw, 7rem);
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+  }
+
+  .footer-invite em {
+    color: var(--sage-300);
+    font-weight: 400;
+  }
+
+  .footer-directions {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 2px solid var(--terracotta);
+    font-size: 0.78rem;
+    font-weight: 850;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .footer-details {
+    display: grid;
+    align-content: start;
+    gap: 48px;
+    padding-top: 52px;
+    min-width: 0;
+  }
+
+  .footer-details h3 {
+    margin: 0 0 16px;
+    color: var(--sage-300);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .footer-details address,
+  .footer-details a {
+    display: block;
+    margin: 5px 0;
+    color: rgba(255, 253, 247, 0.78);
+    font-style: normal;
+    text-decoration: none;
+  }
+
+  .footer-details a:hover {
+    color: white;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .footer-details a {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    overflow-wrap: anywhere;
+  }
+
+  .footer-details ul {
+    display: grid;
+    gap: 10px;
+    max-width: 370px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .footer-details li {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+    color: rgba(255, 253, 247, 0.7);
+    font-size: 0.84rem;
+  }
+
+  .footer-details strong {
+    color: var(--warm-white);
+    font-weight: 650;
+  }
+
+  .footer-bottom {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 30px;
+    padding-top: 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    font-size: 0.73rem;
+  }
+
+  .footer-brand {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    font-family: var(--display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .footer-bottom p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 32px;
+  }
+
+  .footer-links a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.72);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .footer-links a:hover {
+    color: white;
+  }
+
+  @media (max-width: 800px) {
+    .footer-top,
+    .footer-bottom {
+      grid-template-columns: 1fr;
+    }
+
+    .footer-details {
+      padding-top: 0;
+    }
+
+    .footer-bottom {
+      justify-items: start;
+    }
+
+    .footer-links {
+      justify-content: flex-start;
+    }
+  }
+</style>

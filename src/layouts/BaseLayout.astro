@@ -1,0 +1,89 @@
+---
+import "../styles/global.css";
+import { openingHours, siteInfo } from "../data/site";
+import { createHash } from "node:crypto";
+
+type Props = {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+};
+
+const {
+  title = `${siteInfo.name} | Coffee & Convos in Sampaloc, Manila`,
+  description = siteInfo.description,
+  noindex = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = new URL("/social-card.png", Astro.site);
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "CafeOrCoffeeShop",
+  name: siteInfo.name,
+  description: siteInfo.description,
+  url: canonical.origin,
+  image: socialImage.href,
+  telephone: siteInfo.phoneHref,
+  email: siteInfo.email,
+  priceRange: "₱",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "2115 Dapitan St.",
+    addressLocality: "Manila",
+    addressRegion: "Metro Manila",
+    postalCode: "1008",
+    addressCountry: "PH",
+  },
+  hasMenu: `${canonical.origin}/menu/`,
+  sameAs: siteInfo.socialLinks.map((social) => social.href),
+  openingHoursSpecification: openingHours.map((hours) => ({
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: hours.schemaDays.map((day) => `https://schema.org/${day}`),
+    opens: hours.opens,
+    closes: hours.closes,
+  })),
+};
+const jsonLd = JSON.stringify(structuredData).replace(/</g, "\\u003c");
+Astro.csp?.insertScriptHash(`sha256-${createHash("sha256").update(jsonLd).digest("base64")}`);
+const hideFromSearch = noindex || import.meta.env.SITE_NOINDEX;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#f1f3e9" />
+    <meta name="description" content={description} />
+    <meta name="robots" content={hideFromSearch ? "noindex, follow" : "index, follow, max-image-preview:large"} />
+    {!noindex && <link rel="canonical" href={canonical} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_PH" />
+    <meta property="og:site_name" content={siteInfo.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {!noindex && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Sta. Cruz Coffee Spot — Coffee & Convos" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+
+    <script type="application/ld+json" set:html={jsonLd} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <slot />
+  </body>
+</html>

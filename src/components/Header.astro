@@ -1,0 +1,255 @@
+---
+import { siteInfo } from "../data/site";
+const isHome = Astro.url.pathname === "/";
+const isMenu = Astro.url.pathname.startsWith("/menu");
+---
+
+<header class="site-header" data-header>
+  <div class="header-inner container">
+    <a class="brand" href={isHome ? "#top" : "/"} aria-label={`${siteInfo.name}, ${isHome ? "back to top" : "home"}`}>
+      <span class="brand-mark" aria-hidden="true">SC</span>
+      <span class="brand-name">
+        <strong>Sta. Cruz</strong>
+        <small>Coffee Spot</small>
+      </span>
+    </a>
+
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-navigation"
+      data-menu-toggle
+    >
+      <span class="sr-only">Toggle navigation</span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </button>
+
+    <nav id="site-navigation" class="navigation" aria-label="Primary" data-navigation>
+      <a href="/menu/" aria-current={isMenu ? "page" : undefined}>Menu</a>
+      <a href={isHome ? "#story" : "/#story"}>Story</a>
+      <a href={isHome ? "#visit" : "/#visit"}>Visit</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+  const navigation = document.querySelector<HTMLElement>("[data-navigation]");
+  const header = document.querySelector<HTMLElement>("[data-header]");
+  const mobile = window.matchMedia("(max-width: 820px)");
+
+  const closeMenu = () => {
+    if (navigation?.contains(document.activeElement)) toggle?.focus();
+    toggle?.setAttribute("aria-expanded", "false");
+    navigation?.classList.remove("is-open");
+    if (navigation) navigation.inert = mobile.matches;
+  };
+
+  header?.classList.add("navigation-ready");
+  closeMenu();
+
+  toggle?.addEventListener("click", () => {
+    const isOpen = toggle.getAttribute("aria-expanded") === "true";
+    toggle.setAttribute("aria-expanded", String(!isOpen));
+    navigation?.classList.toggle("is-open", !isOpen);
+    if (navigation) navigation.inert = isOpen;
+  });
+
+  navigation?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  mobile.addEventListener("change", closeMenu);
+
+  document.addEventListener("click", (event) => {
+    if (event.target instanceof Node && !header?.contains(event.target)) closeMenu();
+  });
+
+  header?.addEventListener("focusout", (event) => {
+    if (event.relatedTarget instanceof Node && !header.contains(event.relatedTarget)) closeMenu();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeMenu();
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    z-index: 50;
+    top: 0;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--cream) 90%, transparent);
+    backdrop-filter: blur(18px);
+  }
+
+  .header-inner {
+    display: flex;
+    width: min(1488px, calc(100% - var(--wide-gutter) * 2));
+    min-height: 102px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    color: var(--espresso);
+    text-decoration: none;
+  }
+
+  .brand-mark {
+    display: grid;
+    width: 54px;
+    height: 54px;
+    place-items: center;
+    border-radius: 50% 50% 46% 54%;
+    transform: rotate(-6deg);
+    background: var(--sage-700);
+    color: white;
+    font-family: var(--display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+  }
+
+  .brand-name {
+    display: grid;
+    line-height: 1;
+  }
+
+  .brand-name strong {
+    font-family: var(--display);
+    font-size: 1.55rem;
+    letter-spacing: -0.035em;
+  }
+
+  .brand-name small {
+    margin-top: 4px;
+    color: var(--espresso-soft);
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .navigation {
+    display: flex;
+    align-items: center;
+    gap: clamp(20px, 3vw, 40px);
+  }
+
+  .navigation a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--espresso);
+    font-size: 0.78rem;
+    font-weight: 750;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .navigation a::after {
+    width: 0;
+    height: 2px;
+    margin-left: 8px;
+    background: var(--terracotta);
+    content: "";
+    transition: width 180ms ease;
+  }
+
+  .navigation a:hover::after {
+    width: 16px;
+  }
+
+  .navigation a[aria-current="page"]::after {
+    width: 16px;
+  }
+
+  .menu-toggle {
+    display: none;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--warm-white);
+  }
+
+  .menu-toggle span:not(.sr-only) {
+    display: block;
+    width: 19px;
+    height: 2px;
+    margin: 5px auto;
+    background: var(--espresso);
+    transition: transform 180ms ease;
+  }
+
+  .menu-toggle[aria-expanded="true"] span:nth-of-type(2) {
+    transform: translateY(3.5px) rotate(45deg);
+  }
+
+  .menu-toggle[aria-expanded="true"] span:nth-of-type(3) {
+    transform: translateY(-3.5px) rotate(-45deg);
+  }
+
+  @media (max-width: 820px) {
+    .header-inner {
+      width: var(--page);
+      min-height: 78px;
+      flex-wrap: wrap;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      font-size: 0.9rem;
+    }
+
+    .brand-name strong { font-size: 1.25rem; }
+
+    .navigation-ready .menu-toggle {
+      display: block;
+    }
+
+    .navigation {
+      width: 100%;
+      justify-content: center;
+      padding-bottom: 12px;
+    }
+
+    .navigation-ready .navigation {
+      position: absolute;
+      inset: 100% 0 auto;
+      display: grid;
+      padding: 28px 20px 34px;
+      border-bottom: 1px solid var(--line);
+      visibility: hidden;
+      transform: translateY(-8px);
+      background: var(--cream);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 220ms ease, opacity 220ms ease;
+    }
+
+    .navigation-ready .navigation.is-open {
+      visibility: visible;
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .navigation a {
+      min-height: 52px;
+      justify-content: center;
+      font-size: 0.95rem;
+    }
+  }
+</style>

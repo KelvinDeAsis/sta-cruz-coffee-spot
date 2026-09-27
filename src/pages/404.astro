@@ -1,0 +1,38 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+---
+
+<BaseLayout title="Page not found | Sta. Cruz Coffee Spot" description="The page you requested could not be found." noindex>
+  <Header />
+  <main class="not-found" id="main-content">
+    <div>
+      <p class="eyebrow">404 — wrong turn</p>
+      <h1>This page needs another shot.</h1>
+      <p>Let’s get you back to coffee and convos.</p>
+      <a class="button" href="/">Back to the cafe</a>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: grid;
+    min-height: calc(100svh - 78px);
+    place-items: center;
+    padding: 50px 20px;
+    background: var(--sage-100);
+    text-align: center;
+  }
+
+  .not-found div { max-width: 800px; }
+  .not-found .eyebrow { justify-content: center; }
+  .not-found h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(4rem, 12vw, 9rem);
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+  }
+  .not-found p:not(.eyebrow) { margin: 28px 0; color: var(--espresso-soft); font-size: 1.15rem; }
+</style>

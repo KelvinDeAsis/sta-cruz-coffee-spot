@@ -1,0 +1,514 @@
+---
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { menuCategories, menuItems, type MenuCategory } from "../data/site";
+
+const availableItems = menuItems.filter((item) => item.available);
+const categoryDetails: Record<MenuCategory, { description: string }> = {
+  Coffee: {
+    description: "Espresso, lattes, and a few coffee twists for your Dapitan coffee run.",
+  },
+  "Non-coffee": {
+    description: "Chocolate, ube, and other sips when coffee isn't the mood.",
+  },
+  Matcha: {
+    description: "Matcha favorites, from the classic latte to playful flavors.",
+  },
+  Palamig: {
+    description: "Something cool and refreshing, plus a little ice cream.",
+  },
+  Tinapay: {
+    description: "A little something to eat with your drink.",
+  },
+};
+const categories = menuCategories.map((name) => ({
+  name,
+  items: availableItems.filter((item) => item.category === name),
+  ...categoryDetails[name],
+}));
+---
+
+<BaseLayout
+  title="Menu & Prices | Sta. Cruz Coffee Spot"
+  description="Browse coffee, matcha, palamig, non-coffee drinks, and tinapay at Sta. Cruz Coffee Spot on Dapitan Street, Sampaloc."
+>
+  <Header />
+
+  <main id="main-content">
+    <section class="menu-hero" aria-labelledby="menu-heading">
+      <span class="hero-shape hero-shape--left" aria-hidden="true"></span>
+      <span class="hero-shape hero-shape--small" aria-hidden="true"></span>
+      <span class="hero-shape hero-shape--right" aria-hidden="true"></span>
+      <span class="hero-shape hero-shape--ring" aria-hidden="true"></span>
+      <div class="menu-hero-copy">
+        <p>Coffee, matcha & more</p>
+        <h1 id="menu-heading">Our Menu</h1>
+      </div>
+    </section>
+
+    <section id="menu" class="menu-content" aria-label="Menu and prices">
+      <div class="menu-layout">
+        <aside class="menu-sidebar" aria-label="Menu categories">
+          <p class="sidebar-title">Menu</p>
+          <div class="category-controls" role="group" aria-label="Filter menu by category" hidden>
+            <button type="button" class="category-button is-active" data-filter="all" aria-pressed="true">All items</button>
+            <p class="sidebar-group">Drinks</p>
+            {categories.filter(({ name }) => name !== "Tinapay").map(({ name }) => (
+              <button type="button" class="category-button" data-filter={name} aria-pressed="false">{name}</button>
+            ))}
+            <p class="sidebar-group">Food</p>
+            <button type="button" class="category-button" data-filter="Tinapay" aria-pressed="false">Tinapay</button>
+          </div>
+          <noscript>
+            <nav aria-label="Jump to a menu category">
+              {categories.map(({ name }, index) => <a class="category-button" href={`#category-${index}`}>{name}</a>)}
+            </nav>
+          </noscript>
+        </aside>
+
+        <div class="menu-main">
+          <div class="menu-intro">
+            <h2 class="sr-only">Menu and prices</h2>
+            <p>Prices in Philippine pesos. Tap an item for a short description.</p>
+          </div>
+          <p class="menu-status" id="menu-status" role="status">Showing all {availableItems.length} items</p>
+
+          {categories.map(({ name, items, description }, index) => (
+            <section class="category-section" data-menu-section={name} aria-labelledby={`category-${index}`}>
+              <div class="category-heading">
+                <div>
+                  <p class="category-kicker">{String(index + 1).padStart(2, "0")} / {String(categories.length).padStart(2, "0")}</p>
+                  <h3 id={`category-${index}`}>{name}</h3>
+                  <p>{description}</p>
+                </div>
+                <span>{items.length} {items.length === 1 ? "item" : "items"}</span>
+              </div>
+
+              <div class="product-grid">
+                {items.map((item) => (
+                  <details class="product-card">
+                    <summary class="menu-item-toggle">
+                      <span class="menu-item-name">{item.name}</span>
+                      <span class="menu-item-meta">
+                        <strong class="price">{item.price}</strong>
+                      </span>
+                    </summary>
+                    <p class="product-description">
+                      {item.description}
+                    </p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>("[data-filter]");
+  const sections = document.querySelectorAll<HTMLElement>("[data-menu-section]");
+  const status = document.querySelector<HTMLElement>("#menu-status");
+  const controls = document.querySelector<HTMLElement>(".category-controls");
+  const main = document.querySelector<HTMLElement>(".menu-main");
+  const hover = window.matchMedia("(hover: hover)");
+
+  // Native details still work without JavaScript. Mouse users can preview on hover;
+  // tapping or pressing Enter pins the description until toggled again.
+  document.querySelectorAll<HTMLDetailsElement>(".product-card").forEach((card) => {
+    let pinned = false;
+    card.addEventListener("pointerenter", (event) => {
+      if (hover.matches && event.pointerType === "mouse") card.open = true;
+    });
+    card.addEventListener("pointerleave", () => {
+      if (!pinned) card.open = false;
+    });
+    card.querySelector("summary")?.addEventListener("click", (event) => {
+      event.preventDefault();
+      pinned = !pinned;
+      card.open = pinned;
+    });
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        pinned = false;
+        card.open = false;
+      }
+    });
+  });
+
+  const selectCategory = (button: HTMLButtonElement, scroll = false) => {
+    const selected = button.dataset.filter;
+    buttons.forEach((candidate) => {
+      const active = candidate === button;
+      candidate.classList.toggle("is-active", active);
+      candidate.setAttribute("aria-pressed", String(active));
+    });
+
+    let shown = 0;
+    sections.forEach((section) => {
+      section.hidden = selected !== "all" && section.dataset.menuSection !== selected;
+      if (!section.hidden) shown += section.querySelectorAll(".product-card").length;
+    });
+
+    if (status) {
+      status.textContent = selected === "all"
+        ? `Showing all ${shown} items`
+        : `Showing ${selected} · ${shown} ${shown === 1 ? "item" : "items"}`;
+    }
+    if (scroll && main) {
+      const headerHeight = document.querySelector("[data-header]")?.getBoundingClientRect().height ?? 103;
+      const mobile = window.matchMedia("(max-width: 850px)").matches;
+      const controlsHeight = mobile ? document.querySelector(".menu-sidebar")?.getBoundingClientRect().height ?? 0 : 0;
+      const top = main.getBoundingClientRect().top - headerHeight - controlsHeight - 16;
+      if (top < 0) window.scrollBy({ top, behavior: "instant" });
+    }
+  };
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => selectCategory(button, true));
+  });
+  if (controls) controls.hidden = false;
+  const coffee = [...buttons].find((button) => button.dataset.filter === "Coffee");
+  if (coffee) selectCategory(coffee);
+</script>
+
+<style>
+  .menu-hero {
+    position: relative;
+    display: grid;
+    min-height: clamp(240px, 26vw, 340px);
+    place-items: center;
+    overflow: hidden;
+    padding: 48px 24px;
+    background: var(--sage-50);
+    text-align: center;
+  }
+
+  .menu-hero-copy {
+    position: relative;
+    z-index: 1;
+  }
+
+  .menu-hero-copy p {
+    margin: 0 0 18px;
+    color: var(--sage-700);
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
+  }
+
+  .menu-hero h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(4.6rem, 7vw, 8rem);
+    line-height: 0.9;
+    letter-spacing: -0.065em;
+  }
+
+  .hero-shape {
+    position: absolute;
+    display: block;
+    pointer-events: none;
+  }
+
+  .hero-shape--left {
+    top: 23%;
+    left: 8%;
+    width: clamp(80px, 11vw, 180px);
+    aspect-ratio: 1.25;
+    border-radius: 12% 85% 18% 76%;
+    background: var(--sage-700);
+    transform: rotate(-26deg);
+  }
+
+  .hero-shape--small {
+    top: 18%;
+    left: 27%;
+    width: clamp(34px, 4vw, 66px);
+    aspect-ratio: 1.7;
+    border-radius: 50%;
+    background: var(--sage-300);
+    transform: rotate(-22deg);
+  }
+
+  .hero-shape--right {
+    top: -12%;
+    right: 7%;
+    width: clamp(100px, 13vw, 215px);
+    aspect-ratio: 1.1;
+    border-radius: 16% 65% 35% 70%;
+    background: var(--sage-300);
+    transform: rotate(-27deg);
+  }
+
+  .hero-shape--ring {
+    right: 26%;
+    bottom: -34%;
+    width: clamp(100px, 14vw, 220px);
+    aspect-ratio: 1;
+    border: 10px solid var(--terracotta);
+    border-radius: 50%;
+  }
+
+  .menu-content {
+    background: var(--warm-white);
+  }
+
+  .menu-layout {
+    display: grid;
+    width: min(1580px, calc(100% - 64px));
+    grid-template-columns: minmax(190px, 260px) minmax(0, 1fr);
+    gap: clamp(50px, 6vw, 112px);
+    margin-inline: auto;
+    padding-block: clamp(36px, 5vw, 72px) 88px;
+  }
+
+  .menu-sidebar {
+    position: sticky;
+    top: 126px;
+    align-self: start;
+    min-width: 0;
+  }
+
+  .sidebar-title,
+  .sidebar-group {
+    margin: 0;
+    color: var(--sage-700);
+    font-size: 0.85rem;
+    font-weight: 850;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  .sidebar-title { margin-bottom: 18px; }
+  .sidebar-group { padding: 22px 4px 10px; }
+
+  .category-controls {
+    display: grid;
+  }
+
+  .category-controls[hidden] { display: none; }
+  .menu-sidebar :global(noscript a) { display: block; }
+
+  .category-button {
+    min-height: 52px;
+    padding: 10px 8px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: transparent;
+    color: var(--espresso-soft);
+    cursor: pointer;
+    font-size: 0.98rem;
+    font-weight: 750;
+    text-align: left;
+  }
+
+  .category-button:hover,
+  .category-button.is-active {
+    color: var(--espresso);
+  }
+
+  .category-button.is-active {
+    border-bottom-color: var(--terracotta);
+    box-shadow: inset 4px 0 var(--terracotta);
+    padding-left: 18px;
+  }
+
+  .menu-main { min-width: 0; }
+
+  .menu-intro p {
+    max-width: 780px;
+    margin: 0;
+    color: var(--espresso-soft);
+    font-size: 1rem;
+  }
+
+  .menu-status {
+    margin: 12px 0 0;
+    color: var(--espresso-soft);
+    font-size: 0.88rem;
+  }
+
+  .category-section {
+    padding-top: 36px;
+  }
+
+  .category-section[hidden] {
+    display: none;
+  }
+
+  .category-heading {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 30px;
+  }
+
+  .category-kicker {
+    margin: 0 0 12px;
+    color: var(--sage-700);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+  }
+
+  .category-heading h3 {
+    margin: 0 0 12px;
+    font-family: var(--display);
+    font-size: clamp(2.9rem, 5vw, 4.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.055em;
+  }
+
+  .category-heading p:last-child {
+    max-width: 650px;
+    margin: 0;
+    color: var(--espresso-soft);
+  }
+
+  .category-heading > span {
+    padding-top: 32px;
+    color: var(--espresso-soft);
+    white-space: nowrap;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(18px, 3vw, 42px);
+    align-items: start;
+  }
+
+  .product-card {
+    min-width: 0;
+    padding: 0 0 6px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .menu-item-toggle {
+    display: flex;
+    width: 100%;
+    min-height: 68px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 4px;
+    border: 0;
+    background: transparent;
+    color: var(--espresso);
+    cursor: pointer;
+    text-align: left;
+    list-style: none;
+  }
+
+  .menu-item-toggle::-webkit-details-marker { display: none; }
+
+  .menu-item-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-family: var(--display);
+    font-size: clamp(1.2rem, 1.7vw, 1.55rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+  }
+
+  .menu-item-meta {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .product-card:hover .menu-item-name,
+  .menu-item-toggle:focus-visible .menu-item-name {
+    color: var(--sage-700);
+  }
+
+  .price {
+    color: var(--sage-700);
+    font-size: 0.98rem;
+    white-space: nowrap;
+  }
+
+  .product-description {
+    margin: -2px 0 6px;
+    padding: 0 4px 8px;
+    color: var(--espresso-soft);
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 1200px) {
+    .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 850px) {
+    .menu-layout {
+      width: min(100% - 48px, 700px);
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+      padding-top: 24px;
+    }
+    .menu-sidebar {
+      position: sticky;
+      top: var(--header-height);
+      z-index: 10;
+      padding-block: 12px;
+      background: var(--warm-white);
+    }
+    .sidebar-title { display: none; }
+    .category-controls {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 6px;
+      scrollbar-width: thin;
+    }
+    .sidebar-group { display: none; }
+    .category-button {
+      flex: 0 0 auto;
+      min-height: 46px;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .category-button.is-active {
+      padding-left: 14px;
+      border-color: var(--sage-700);
+      background: var(--sage-700);
+      box-shadow: none;
+      color: white;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .menu-hero { min-height: 200px; padding-block: 36px; }
+    .menu-hero h1 { font-size: clamp(4.3rem, 15vw, 6.5rem); }
+    .hero-shape--left { left: -8%; }
+    .hero-shape--right { right: -8%; }
+    .hero-shape--ring { right: 10%; bottom: -44%; }
+    .menu-layout { padding-bottom: 88px; }
+    .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 16px; }
+    .menu-item-toggle { min-height: 62px; gap: 6px; padding-inline: 0; }
+    .menu-item-name { font-size: 1.12rem; }
+    .menu-item-meta { gap: 6px; }
+    .price { font-size: 0.88rem; }
+    .product-description { padding-right: 0; font-size: 0.84rem; }
+    .category-heading { gap: 12px; margin-bottom: 20px; }
+    .category-heading > span { padding-top: 34px; font-size: 0.8rem; }
+  }
+
+  @media (max-width: 560px) {
+    .product-grid { grid-template-columns: 1fr; }
+    .menu-item-name { font-size: 1.28rem; }
+    .menu-item-meta { gap: 12px; }
+    .price { font-size: 0.98rem; }
+  }
+
+</style>

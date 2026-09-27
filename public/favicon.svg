@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Sta. Cruz Coffee Spot">
+  <rect width="64" height="64" rx="20" fill="#4e6548"/>
+  <path d="M15 22h28v13c0 10-6 16-14 16S15 45 15 35V22Z" fill="#fffdf7" stroke="#201c18" stroke-width="4"/>
+  <path d="M43 27h4a7 7 0 0 1 0 14h-6" fill="none" stroke="#201c18" stroke-width="4"/>
+  <path d="M23 16c-4-4 5-6 1-11M33 16c-4-4 5-6 1-11" fill="none" stroke="#fffdf7" stroke-width="3" stroke-linecap="round"/>
+</svg>
